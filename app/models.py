@@ -90,7 +90,7 @@ class Cidadao(models.Model):
     def idade(self):
         if self.data_nascimento:
             hoje = date.today()
-            idade = hoje.year - self.data_nascimento.year - ((hoje.month,hoje.today) < (self.data_nascimento.month, self.data_nascimento.day))
+            idade = hoje.year - self.data_nascimento.year - ((hoje.month,hoje.day) < (self.data_nascimento.month, self.data_nascimento.day))
             return idade
         return None
 
