@@ -98,3 +98,34 @@ class Cidadao(models.Model):
         verbose_name = "Cidadão"
         verbose_name_plural = "Cidadãos"
 
+
+    @property
+    def status_consulta_diabetico(self):
+        if not self.data_consulta_1:
+            return "🔴 Vermelho (Sem consulta)"
+        dias_passados = (date.today() - self.data_consulta_1).days
+
+        if dias_passados <= 150: 
+            return "🟢 Verde"
+        elif 150 < dias_passados <= 365: 
+            return "🟡 Amarelo"
+        else: 
+            return "🔴 Vermelho"        
+    
+    @property
+    def classe_cor(self):
+        status = self.status_consulta_diabetico
+        if "🔴" in status:
+            return "danger"  
+        elif "🟡" in status:
+            return "warning" 
+        return "success"     
+
+    @property
+    def peso_prioridade(self):
+        status = self.status_consulta_diabetico
+        if "🔴" in status:
+            return 1
+        elif "🟡" in status:
+            return 2
+        return 3

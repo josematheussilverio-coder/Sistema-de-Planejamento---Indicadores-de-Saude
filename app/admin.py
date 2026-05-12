@@ -6,7 +6,7 @@ admin.site.register(GrupoRisco)
 
 @admin.register(Cidadao)
 class CidadaoAdmin(admin.ModelAdmin):
-    list_display = ('nome','cns', 'microarea', 'bairro', 'idade')
+    list_display = ('nome','cns', 'microarea', 'bairro', 'idade', 'status_consulta_diabetico')
 
     search_fields = ('nome', 'cns', 'cpf')
 
