@@ -4,10 +4,10 @@ from django.core.management.base import BaseCommand
 from app.models import Cidadao, GrupoRisco 
 
 class Command(BaseCommand):
-    help = 'Importa dados dos cidadãos a partir do CSV do e-SUS'
+    help = 'Importa dados dos cidadãos HIPERTENSOS a partir do CSV do e-SUS'
 
     def add_arguments(self, parser):
-        parser.add_argument('csv_file', type=str, help='Caminho para o arquivo CSV')
+        parser.add_argument('csv_file', type=str, help='Caminho para o arquivo CSV de Hipertensos')
 
     def handle(self, *args, **kwargs):
         caminho_arquivo = kwargs['csv_file']
@@ -20,7 +20,7 @@ class Command(BaseCommand):
             except ValueError:
                 return None
 
-        self.stdout.write(self.style.WARNING(f'Lendo o arquivo de diabéticos: {caminho_arquivo}...'))
+        self.stdout.write(self.style.WARNING(f'Lendo o arquivo de hipertensos: {caminho_arquivo}...'))
 
         with open(caminho_arquivo, 'r', encoding='latin-1') as f:
             linhas = f.readlines()
@@ -33,7 +33,8 @@ class Command(BaseCommand):
 
         leitor_csv = csv.DictReader(linhas[inicio_tabela:], delimiter=';')
         
-        grupo_diabetes, _ = GrupoRisco.objects.get_or_create(nome="Diabetes")
+        grupo_hipertensao, _ = GrupoRisco.objects.get_or_create(nome="Hipertensão")
+        
         cadastrados = 0
         atualizados = 0
 
@@ -57,7 +58,7 @@ class Command(BaseCommand):
                         'rua': linha.get('Rua', ''),
                         'numero': linha.get('Número', ''),
                         'bairro': linha.get('Bairro', ''),
-                        'microarea': str(linha.get('Microárea', '')).zfill(2), # Transforma "4" em "04"
+                        'microarea': str(linha.get('Microárea', '')).zfill(2),
                         
                         'valor_pa_1': linha.get('Última medição de pressão arterial', ''),
                         'data_pa_1': formata_data(linha.get('Data da última medição de pressão arterial')),
@@ -74,7 +75,7 @@ class Command(BaseCommand):
                     }
                 )
                 
-                cidadao.grupos_de_risco.add(grupo_diabetes)
+                cidadao.grupos_de_risco.add(grupo_hipertensao)
 
                 if criado:
                     cadastrados += 1
@@ -82,7 +83,5 @@ class Command(BaseCommand):
                     atualizados += 1
                     
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f'Aviso: Pulando {nome} devido a conflito de dados (Ex: CNS já cadastrado).'))
+                self.stdout.write(self.style.ERROR(f'Aviso: Pulando {nome} devido a conflito de dados (Ex: CNS já cadastrado em outro nome).'))
                 continue
-                
-        self.stdout.write(self.style.SUCCESS(f'Sucesso! {cadastrados} novos cadastrados e {atualizados} atualizados.'))

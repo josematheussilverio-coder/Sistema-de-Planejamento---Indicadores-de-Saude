@@ -111,21 +111,62 @@ class Cidadao(models.Model):
             return "🟡 Amarelo"
         else: 
             return "🔴 Vermelho"        
+        
+    @property
+    def status_hemoglobina(self):
+        if not self.data_hemoglobina_glicada:
+            return "🔴 Vermelho (Sem Hbc1a)"
+        
+        dias_passados = (date.today() - self.data_hemoglobina_glicada).days
+
+        if dias_passados <=180:
+            return "🟢 Verde"
+        elif  180 < dias_passados <= 365:
+            return  "🟡 Amarelo"
+        else:
+            return "🔴 Vermelho"
     
     @property
     def classe_cor(self):
-        status = self.status_consulta_diabetico
-        if "🔴" in status:
-            return "danger"  
-        elif "🟡" in status:
-            return "warning" 
-        return "success"     
+        indicadores = [
+            self.status_consulta_diabetico,
+            self.status_hemoglobina,
+            self.status_consulta_hipertenso, 
+        ]
+        
+        if any("🔴" in status for status in indicadores):
+            return "danger"
+        elif any("🟡" in status for status in indicadores):
+            return "warning"
+        
+        return "success"
 
     @property
     def peso_prioridade(self):
-        status = self.status_consulta_diabetico
-        if "🔴" in status:
+        indicadores = [
+            self.status_consulta_diabetico,
+            self.status_hemoglobina,
+            self.status_consulta_hipertenso, 
+        ]
+        
+        if any("🔴" in status for status in indicadores):
             return 1
-        elif "🟡" in status:
+        elif any("🟡" in status for status in indicadores):
             return 2
         return 3
+    
+    @property
+    def status_consulta_hipertenso(self):
+        if not self.data_consulta_1:
+            return "🔴 Vermelho (Sem consulta)"
+        
+        dias_passados = (date.today() - self.data_consulta_1).days
+        
+        if dias_passados <= 180:
+            return "🟢 Verde"
+        elif 180 < dias_passados <= 365:
+            return "🟡 Amarelo"
+        else:
+            return "🔴 Vermelho"
+        
+    
