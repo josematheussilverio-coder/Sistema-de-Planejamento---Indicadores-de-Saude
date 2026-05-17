@@ -139,6 +139,9 @@ class Cidadao(models.Model):
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
         if "Idoso" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
+        # NOVA INTEGRAÇÃO:
+        if "Criança" in grupos_do_cidadao:
+            indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
 
         if not indicadores:
             return "secondary"
@@ -156,12 +159,18 @@ class Cidadao(models.Model):
         
         if "Diabetes" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
+        
         if "Hipertensão" in grupos_do_cidadao:
             indicadores.append(self.status_consulta_hipertenso)
+        
         if "Gestante" in grupos_do_cidadao:
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
+        
         if "Idoso" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
+            
+        if "Criança" in grupos_do_cidadao:
+            indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
 
         if any("🔴" in status for status in indicadores):
             return 1
@@ -226,3 +235,24 @@ class Cidadao(models.Model):
         if self.data_vacina_influenza:
             return "🟢 Verde"
         return "🔴 Vermelho (Pendente)"
+    
+    @property
+    def status_consultas_crianca(self):
+        if self.qtd_consultas_crianca >= 9:
+            return "🟢 Verde"
+        elif self.qtd_consultas_crianca > 0:
+            return "🟡 Amarelo"
+        return "🔴 Vermelho (Sem consultas)"
+
+    @property
+    def status_vacinas_crianca(self):
+        vacinas = [
+            str(self.info_vacina_pentavalente).lower(),
+            str(self.info_vacina_triplice_viral).lower(),
+            str(self.info_vacina_polio).lower(),
+            str(self.info_vacina_pneumo).lower()
+        ]
+        
+        if any(not v or 'atr' in v or 'pen' in v or 'nã' in v or 'vazio' in v for v in vacinas):
+            return "🔴 Vermelho (Atraso/Pendente)"
+        return "🟢 Verde (Em dia)"

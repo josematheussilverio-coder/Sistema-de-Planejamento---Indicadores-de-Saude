@@ -100,6 +100,17 @@
                             </div>
                             {% endif %}
 
+                            {% if 'Criança' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <div class="text-secondary small border-top pt-1 mt-2">
+                                <span class="badge text-dark mb-1" style="background-color: #ffc107;">Criança (Até 2 anos)</span>
+                                <p class="mb-0"><strong>🩺 Consultas Realizadas:</strong> <span class="fw-bold text-dark">{{ cidadao.qtd_consultas_crianca }}</span> de 9</p>
+                                <p class="mb-0"><strong>💉 Pentavalente:</strong> {{ cidadao.info_vacina_pentavalente|default:"Não informada" }}</p>
+                                <p class="mb-0"><strong>💉 Tríplice Viral:</strong> {{ cidadao.info_vacina_triplice_viral|default:"Não informada" }}</p>
+                                <p class="mb-0"><strong>💉 Poliomielite:</strong> {{ cidadao.info_vacina_polio|default:"Não informada" }}</p>
+                                <p class="mb-0"><strong>💉 Pneumocócica:</strong> {{ cidadao.info_vacina_pneumo|default:"Não informada" }}</p>
+                            </div>
+                            {% endif %}
+
                         </div>
 
                         <div class="d-flex flex-wrap gap-1">
@@ -121,6 +132,11 @@
                             {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Consulta Idoso: {{ cidadao.status_consulta_idoso }}</span>
                             <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Influenza: {{ cidadao.status_vacina_influenza }}</span>
+                            {% endif %}
+
+                            {% if 'Criança' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Consultas Kid: {{ cidadao.status_consultas_crianca }}</span>
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Vacinas Kid: {{ cidadao.status_vacinas_crianca }}</span>
                             {% endif %}
                         </div>
                     </div>
