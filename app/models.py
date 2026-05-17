@@ -128,12 +128,21 @@ class Cidadao(models.Model):
     
     @property
     def classe_cor(self):
-        indicadores = [
-            self.status_consulta_diabetico,
-            self.status_hemoglobina,
-            self.status_consulta_hipertenso, 
-        ]
+        indicadores = []
+        grupos_do_cidadao = [grupo.nome for grupo in self.grupos_de_risco.all()]
         
+        if "Diabetes" in grupos_do_cidadao:
+            indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
+            
+        if "Hipertensão" in grupos_do_cidadao:
+            indicadores.append(self.status_consulta_hipertenso)
+            
+        if "Gestante" in grupos_do_cidadao:
+            indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
+
+        if not indicadores:
+            return "secondary"
+
         if any("🔴" in status for status in indicadores):
             return "danger"
         elif any("🟡" in status for status in indicadores):
@@ -143,12 +152,16 @@ class Cidadao(models.Model):
 
     @property
     def peso_prioridade(self):
-        indicadores = [
-            self.status_consulta_diabetico,
-            self.status_hemoglobina,
-            self.status_consulta_hipertenso, 
-        ]
+        indicadores = []
+        grupos_do_cidadao = [grupo.nome for grupo in self.grupos_de_risco.all()]
         
+        if "Diabetes" in grupos_do_cidadao:
+            indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
+        if "Hipertensão" in grupos_do_cidadao:
+            indicadores.append(self.status_consulta_hipertenso)
+        if "Gestante" in grupos_do_cidadao:
+            indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
+
         if any("🔴" in status for status in indicadores):
             return 1
         elif any("🟡" in status for status in indicadores):
@@ -168,5 +181,28 @@ class Cidadao(models.Model):
             return "🟡 Amarelo"
         else:
             return "🔴 Vermelho"
+        
+    @property
+    def status_pre_natal(self):
+        if self.qtde_consultas_pre_natal >= 7:
+            return "🟢 Verde"
+        elif self.qtde_consultas_pre_natal > 0:
+            return "🟡 Amarelo"
+        else:
+            return "🔴 Vermelho (Sem consultas)"
+
+    @property
+    def status_vacina_dtpa(self):
+        if self.data_vacina_dtpa:
+            return "🟢 Verde"
+        return "🔴 Vermelho (Pendente)"
+
+    @property
+    def status_testes_gestante(self):
+        if self.data_testes_1_semestre and self.data_testes_3_semestre:
+            return "🟢 Verde"
+        elif self.data_testes_1_semestre or self.data_testes_3_semestre:
+            return "🟡 Amarelo"
+        return "🔴 Vermelho (Pendentes)"
         
     

@@ -55,39 +55,70 @@
             <div class="col">
                 <div class="card h-100 shadow-sm border-start border-4 border-{{ cidadao.classe_cor }}">
                     <div class="card-body">
-                        <h5 class="card-title">{{ cidadao.nome }}</h5>
-                        <h6 class="card-subtitle mb-3 text-muted">
+                        <h5 class="card-title fw-bold text-dark mb-1">{{ cidadao.nome }}</h5>
+                        <h6 class="card-subtitle mb-3 text-muted small">
                             Idade: {{ cidadao.idade }} anos | Microárea: {{ cidadao.microarea }}
                         </h6>
 
                         <div class="p-2 bg-light rounded border mb-3">
-                            <p class="card-text mb-1 small">
-                                <strong>Última Consulta:</strong>
+
+                            <p class="card-text mb-2 small border-bottom pb-1">
+                                <strong>🩺 Última Consulta:</strong>
                                 {{ cidadao.data_consulta_1|date:"d/m/Y"|default:"---" }}
                             </p>
 
-                            {% if "Diabetes" in cidadao.grupos_de_risco.all|stringformat:"s" %}
-                            <p class="card-text mb-0 small">
-                                <strong>Hemoglobina Glicada:</strong>
-                                {{ cidadao.data_hemoglobina_glicada|date:"d/m/Y"|default:"---" }}
-                            </p>
+                            {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <div class="mb-2 text-secondary small">
+                                <span class="badge bg-dark-subtle text-dark mb-1">Diabetes</span>
+                                <p class="mb-0"><strong>🧪 Hemoglobina Glicada:</strong> {{ cidadao.data_hemoglobina_glicada|date:"d/m/Y"|default:"---" }} ({{ cidadao.valor_hemoglobina_glicada|default:"-" }})</p>
+                                <p class="mb-0"><strong>👣 Avaliação dos Pés:</strong> {{ cidadao.data_avaliacao_pes|date:"d/m/Y"|default:"---" }}</p>
+                            </div>
                             {% endif %}
+
+                            {% if 'Hipertensão' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <div class="mb-2 text-secondary small border-top pt-1">
+                                <span class="badge bg-dark-subtle text-dark mb-1">Hipertensão</span>
+                                <p class="mb-0"><strong>🩸 Última PA:</strong> {{ cidadao.valor_pa_1|default:"---" }} em {{ cidadao.data_pa_1|date:"d/m/Y"|default:"---" }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if 'Gestante' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <div class="text-secondary small border-top pt-1">
+                                <span class="badge text-white mb-1" style="background-color: #6f42c1;">Gestante</span>
+                                <p class="mb-0"><strong>📅 DUM:</strong> {{ cidadao.dum|date:"d/m/Y"|default:"---" }} | <strong>👶 DPP:</strong> {{ cidadao.dpp|date:"d/m/Y"|default:"---" }}</p>
+                                <p class="mb-0"><strong>🩺 Pré-Natal:</strong> <span class="fw-bold text-dark">{{ cidadao.qtde_consultas_pre_natal }}</span> de 7 consultas</p>
+                                <p class="mb-0"><strong>💉 Vacina dTpa:</strong> {{ cidadao.data_vacina_dtpa|date:"d/m/Y"|default:"❌ Pendente" }}</p>
+                                <p class="mb-0"><strong>🧪 Testes Rápidos (1º Trim):</strong> {{ cidadao.data_testes_1_semestre|date:"d/m/Y"|default:"❌ Não feito" }}</p>
+                                <p class="mb-0"><strong>🧪 Testes Rápidos (3º Trim):</strong> {{ cidadao.data_testes_3_semestre|date:"d/m/Y"|default:"❌ Não feito" }}</p>
+                            </div>
+                            {% endif %}
+
                         </div>
 
-                        <p class="card-text mb-0">
-                            <span class="badge bg-{{ cidadao.classe_cor }}">
-                                {{ cidadao.status_consulta_diabetico }}
-                            </span>
-                        </p>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Consulta DM: {{ cidadao.status_consulta_diabetico }}</span>
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">HbA1c: {{ cidadao.status_hemoglobina }}</span>
+                            {% endif %}
+
+                            {% if 'Hipertensão' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Consulta HA: {{ cidadao.status_consulta_hipertenso }}</span>
+                            {% endif %}
+
+                            {% if 'Gestante' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Pré-Natal: {{ cidadao.status_pre_natal }}</span>
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">dTpa: {{ cidadao.status_vacina_dtpa }}</span>
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Testes: {{ cidadao.status_testes_gestante }}</span>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <small class="text-muted">CNS: {{ cidadao.cns|default:"Não informado" }}</small>
+
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <small class="text-muted" style="font-size: 0.75rem;">CNS: {{ cidadao.cns|default:"Não informado" }}</small>
                     </div>
                 </div>
             </div>
-            {% endfor %}
-
-        </div>
+            {% endfor %} </div>
     </div>
 
 </body>
