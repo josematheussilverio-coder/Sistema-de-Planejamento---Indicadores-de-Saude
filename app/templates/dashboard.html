@@ -93,6 +93,13 @@
                             </div>
                             {% endif %}
 
+                            {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <div class="text-secondary small border-top pt-1 mt-2">
+                                <span class="badge text-dark mb-1" style="background-color: #0dcaf0;">Idoso</span>
+                                <p class="mb-0"><strong>💉 Vacina Influenza:</strong> {{ cidadao.data_vacina_influenza|date:"d/m/Y"|default:"❌ Pendente" }}</p>
+                            </div>
+                            {% endif %}
+
                         </div>
 
                         <div class="d-flex flex-wrap gap-1">
@@ -109,6 +116,11 @@
                             <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Pré-Natal: {{ cidadao.status_pre_natal }}</span>
                             <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">dTpa: {{ cidadao.status_vacina_dtpa }}</span>
                             <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Testes: {{ cidadao.status_testes_gestante }}</span>
+                            {% endif %}
+
+                            {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' %}
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Consulta Idoso: {{ cidadao.status_consulta_idoso }}</span>
+                            <span class="badge rounded-pill bg-secondary small" style="font-size: 0.75rem;">Influenza: {{ cidadao.status_vacina_influenza }}</span>
                             {% endif %}
                         </div>
                     </div>

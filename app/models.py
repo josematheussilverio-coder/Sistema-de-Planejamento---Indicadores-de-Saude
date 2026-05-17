@@ -133,12 +133,12 @@ class Cidadao(models.Model):
         
         if "Diabetes" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
-            
         if "Hipertensão" in grupos_do_cidadao:
             indicadores.append(self.status_consulta_hipertenso)
-            
         if "Gestante" in grupos_do_cidadao:
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
+        if "Idoso" in grupos_do_cidadao:
+            indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
 
         if not indicadores:
             return "secondary"
@@ -147,7 +147,6 @@ class Cidadao(models.Model):
             return "danger"
         elif any("🟡" in status for status in indicadores):
             return "warning"
-        
         return "success"
 
     @property
@@ -161,6 +160,8 @@ class Cidadao(models.Model):
             indicadores.append(self.status_consulta_hipertenso)
         if "Gestante" in grupos_do_cidadao:
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
+        if "Idoso" in grupos_do_cidadao:
+            indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
 
         if any("🔴" in status for status in indicadores):
             return 1
@@ -205,4 +206,23 @@ class Cidadao(models.Model):
             return "🟡 Amarelo"
         return "🔴 Vermelho (Pendentes)"
         
-    
+    @property
+    def status_consulta_idoso(self):
+        if not self.data_consulta_1:
+            return "🔴 Vermelho (Sem consulta)"
+        
+        dias_passados = (date.today() - self.data_consulta_1).days
+        
+        if dias_passados <= 180:
+            return "🟢 Verde"
+        elif 180 < dias_passados <= 365:
+            return "🟡 Amarelo"
+        else:
+            return "🔴 Vermelho"
+
+    @property
+    def status_vacina_influenza(self):
+        """Semáforo: Vacina Influenza"""
+        if self.data_vacina_influenza:
+            return "🟢 Verde"
+        return "🔴 Vermelho (Pendente)"
