@@ -125,59 +125,7 @@ class Cidadao(models.Model):
             return  "🟡 Amarelo"
         else:
             return "🔴 Vermelho"
-    
-    @property
-    def classe_cor(self):
-        indicadores = []
-        grupos_do_cidadao = [grupo.nome for grupo in self.grupos_de_risco.all()]
-        
-        if "Diabetes" in grupos_do_cidadao:
-            indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
-        if "Hipertensão" in grupos_do_cidadao:
-            indicadores.append(self.status_consulta_hipertenso)
-        if "Gestante" in grupos_do_cidadao:
-            indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
-        if "Idoso" in grupos_do_cidadao:
-            indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
-        if "Criança" in grupos_do_cidadao:
-            indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
-        # NOVA INTEGRAÇÃO:
-        if "Mulheres" in grupos_do_cidadao:
-            indicadores.extend([self.status_citopatologico, self.status_mamografia_farol])
 
-        if not indicadores:
-            return "secondary"
-
-        if any("🔴" in status for status in indicadores):
-            return "danger"
-        elif any("🟡" in status for status in indicadores):
-            return "warning"
-        return "success"
-
-    @property
-    def peso_prioridade(self):
-        indicadores = []
-        grupos_do_cidadao = [grupo.nome for grupo in self.grupos_de_risco.all()]
-        
-        if "Diabetes" in grupos_do_cidadao:
-            indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
-        if "Hipertensão" in grupos_do_cidadao:
-            indicadores.append(self.status_consulta_hipertenso)
-        if "Gestante" in grupos_do_cidadao:
-            indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
-        if "Idoso" in grupos_do_cidadao:
-            indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
-        if "Criança" in grupos_do_cidadao:
-            indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
-        # NOVA INTEGRAÇÃO:
-        if "Mulheres" in grupos_do_cidadao:
-            indicadores.extend([self.status_citopatologico, self.status_mamografia_farol])
-
-        if any("🔴" in status for status in indicadores):
-            return 1
-        elif any("🟡" in status for status in indicadores):
-            return 2
-        return 3
     
     @property
     def status_consulta_hipertenso(self):

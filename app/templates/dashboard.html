@@ -34,6 +34,12 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-modern sticky-top py-3 mb-4">
         <div class="container-fluid px-4">
+            <span class="navbar-brand mb-0 h1 d-flex align-items-center gap-2" style="color: #0f172a; font-weight: 700;">
+                <div class="bg-primary text-white rounded p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-activity fs-5"></i>
+                </div>
+                Farol ACS
+            </span>
             <span class="navbar-text text-muted small d-none d-md-flex align-items-center gap-3 fw-medium">
                 <a href="{% url 'importar_planilhas' %}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm"><i class="bi bi-cloud-upload"></i> Importar Dados</a>
                 <span class="border-start border-2 h-50 mx-1"></span>
@@ -134,14 +140,15 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for cidadao in cidadaos %}
             <div class="col">
-                <div class="card h-100 patient-card border-left-{{ cidadao.classe_cor }}">
+                <div class="card h-100 patient-card border-left-{{ cidadao.cor_dinamica }}">
                     
                     <div class="card-body p-4 pb-2">
                         <div class="mb-3">
                             <h5 class="fw-bold text-dark mb-1" style="font-size: 1.1rem;">{{ cidadao.nome }}</h5>
-                            <div class="d-flex text-muted small gap-3">
+                            <div class="d-flex flex-column text-muted small gap-1 mt-2">
                                 <span><i class="bi bi-person text-secondary"></i> {{ cidadao.idade }} anos</span>
-                                <span><i class="bi bi-geo-alt text-secondary"></i> Micro: {{ cidadao.microarea }}</span>
+                                <span><i class="bi bi-geo-alt text-secondary"></i> {{ cidadao.rua }}, {{ cidadao.numero|default:"S/N" }} - {{ cidadao.bairro }}</span>
+                                <span><i class="bi bi-map text-secondary"></i> Microárea: {{ cidadao.microarea }}</span>
                             </div>
                         </div>
 
@@ -149,14 +156,26 @@
                             <span class="text-secondary small fw-medium"><i class="bi bi-stethoscope text-primary me-1"></i> Última Consulta</span>
                             <span class="fw-semibold text-dark small">{{ cidadao.data_consulta_1|date:"d/m/Y"|default:"---" }}</span>
                         </div>
-
+                        
                         {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             {% if grupo_filtro == '' or grupo_filtro == 'Diabetes' %}
                             <div class="disease-block">
                                 <div class="mb-2"><span class="badge badge-group" style="background-color: #e0f2fe; color: #0284c7;">Diabetes</span></div>
-                                <div class="d-flex justify-content-between small">
-                                    <span class="text-secondary">HbA1c</span>
-                                    <span class="fw-medium text-dark">{{ cidadao.data_hemoglobina_glicada|date:"d/m/Y"|default:"---" }}</span>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">HbA1c / Pés</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.data_hemoglobina_glicada|date:"d/m/y"|default:"-" }} / {{ cidadao.data_avaliacao_pes|date:"d/m/y"|default:"-" }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Pressão Arterial</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_pa_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_pa_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Peso / Altura</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_peso_altura_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
+                                <div class="d-flex justify-content-between small border-top pt-1 mt-1">
+                                    <span class="text-secondary">Últimas Visitas</span>
+                                    <span class="fw-medium text-dark text-end">{{ cidadao.data_visita_1|date:"d/m/y"|default:"-" }}<br>{{ cidadao.data_visita_2|date:"d/m/y"|default:"" }}</span>
                                 </div>
                             </div>
                             {% endif %}
@@ -166,9 +185,17 @@
                             {% if grupo_filtro == '' or grupo_filtro == 'Hipertensão' %}
                             <div class="disease-block">
                                 <div class="mb-2"><span class="badge badge-group" style="background-color: #fee2e2; color: #dc2626;">Hipertensão</span></div>
-                                <div class="d-flex justify-content-between small">
+                                <div class="d-flex justify-content-between small mb-1">
                                     <span class="text-secondary">Última PA</span>
-                                    <span class="fw-medium text-dark">{{ cidadao.data_pa_1|date:"d/m/Y"|default:"---" }}</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_pa_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_pa_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Peso / Altura</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_peso_altura_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
+                                <div class="d-flex justify-content-between small border-top pt-1 mt-1">
+                                    <span class="text-secondary">Últimas Visitas</span>
+                                    <span class="fw-medium text-dark text-end">{{ cidadao.data_visita_1|date:"d/m/y"|default:"-" }}<br>{{ cidadao.data_visita_2|date:"d/m/y"|default:"" }}</span>
                                 </div>
                             </div>
                             {% endif %}
@@ -178,9 +205,21 @@
                             {% if grupo_filtro == '' or grupo_filtro == 'Gestante' %}
                             <div class="disease-block">
                                 <div class="mb-2"><span class="badge badge-group" style="background-color: #f3e8ff; color: #9333ea;">Gestante</span></div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Pré-Natal</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.qtde_consultas_pre_natal }} consultas</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Visitas (Gest/Puerp)</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.qtd_visitas_gestante|default:"0" }} realizadas</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1 border-top pt-1 mt-1">
+                                    <span class="text-secondary">Pressão Arterial</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_pa_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_pa_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
                                 <div class="d-flex justify-content-between small">
-                                    <span class="text-secondary">Consultas</span>
-                                    <span class="fw-medium text-dark">{{ cidadao.qtde_consultas_pre_natal }} / 7</span>
+                                    <span class="text-secondary">Peso / Altura</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_peso_altura_1|date:"d/m/y"|default:"-" }})</span></span>
                                 </div>
                             </div>
                             {% endif %}
@@ -190,9 +229,17 @@
                             {% if grupo_filtro == '' or grupo_filtro == 'Idoso' %}
                             <div class="disease-block">
                                 <div class="mb-2"><span class="badge badge-group" style="background-color: #ccfbf1; color: #0d9488;">Idoso</span></div>
-                                <div class="d-flex justify-content-between small">
+                                <div class="d-flex justify-content-between small mb-1">
                                     <span class="text-secondary">Influenza</span>
-                                    <span class="fw-medium text-dark">{{ cidadao.data_vacina_influenza|date:"d/m/Y"|default:"Pendente" }}</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.data_vacina_influenza|date:"d/m/y"|default:"Pendente" }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1 border-top pt-1 mt-1">
+                                    <span class="text-secondary">Pressão Arterial</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_pa_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_pa_1|date:"d/m/y"|default:"-" }})</span></span>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span class="text-secondary">Peso / Altura</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} <span class="text-muted fw-normal">({{ cidadao.data_peso_altura_1|date:"d/m/y"|default:"-" }})</span></span>
                                 </div>
                             </div>
                             {% endif %}
@@ -216,7 +263,7 @@
                                 <div class="mb-2"><span class="badge badge-group" style="background-color: #fce7f3; color: #db2777;">Mulheres</span></div>
                                 <div class="d-flex justify-content-between small">
                                     <span class="text-secondary">Preventivo</span>
-                                    <span class="fw-medium text-dark">{{ cidadao.data_exame_citopatologico|date:"d/m/Y"|default:"-" }}</span>
+                                    <span class="fw-medium text-dark">{{ cidadao.data_exame_citopatologico|date:"d/m/y"|default:"-" }}</span>
                                 </div>
                             </div>
                             {% endif %}
@@ -229,10 +276,10 @@
 
                     <div class="card-footer bg-transparent border-top p-3 pt-2">
                         <div class="d-flex flex-wrap gap-2 mb-3">
-                            {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Diabetes,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_hemoglobina|slice:":1" }} HbA1c</span>{% endif %}
-                            {% if 'Hipertensão' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Hipertensão,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_consulta_hipertenso|slice:":1" }} PA</span>{% endif %}
+                            {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Diabetes,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_consulta_diabetico|slice:":1" }} Consulta</span>{% endif %}
+                            {% if 'Hipertensão' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Hipertensão,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_consulta_hipertenso|slice:":1" }} Consulta</span>{% endif %}
                             {% if 'Gestante' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Gestante,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_pre_natal|slice:":1" }} Pré-Nat</span>{% endif %}
-                            {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Idoso,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_vacina_influenza|slice:":1" }} Vacina</span>{% endif %}
+                            {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Idoso,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_consulta_idoso|slice:":1" }} Consulta</span>{% endif %}
                             {% if 'Criança' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Criança,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_vacinas_crianca|slice:":1" }} Vacinas</span>{% endif %}
                             {% if 'Mulheres' in cidadao.grupos_de_risco.all|stringformat:'s' and grupo_filtro in 'Mulheres,' %}<span style="font-size: 0.75rem;">{{ cidadao.status_citopatologico|slice:":1" }} Cito</span>{% endif %}
                         </div>
@@ -252,20 +299,26 @@
                         </div>
                         <div class="modal-body p-4 bg-light">
                             <h4 class="fw-bold mb-1">{{ cidadao.nome }}</h4>
-                            <p class="text-muted small mb-4">Nasc: {{ cidadao.data_nascimento|date:"d/m/Y" }} ({{ cidadao.idade }} anos) | CNS: {{ cidadao.cns|default:"-" }}</p>
+                            <p class="text-muted small mb-2">Nasc: {{ cidadao.data_nascimento|date:"d/m/Y" }} ({{ cidadao.idade }} anos) | CNS: {{ cidadao.cns|default:"-" }}</p>
+                            <p class="text-muted small mb-4"><i class="bi bi-geo-alt"></i> {{ cidadao.rua }}, {{ cidadao.numero|default:"S/N" }} - {{ cidadao.bairro }} (Micro: {{ cidadao.microarea }})</p>
 
                             {% if 'Diabetes' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             <div class="disease-block bg-white shadow-sm border-0 mb-3">
                                 <h6 class="fw-bold" style="color: #0284c7;">Diabetes</h6>
                                 <p class="mb-1 small"><strong>Hemoglobina:</strong> {{ cidadao.data_hemoglobina_glicada|date:"d/m/Y"|default:"-" }} ({{ cidadao.valor_hemoglobina_glicada|default:"-" }})</p>
-                                <p class="mb-0 small"><strong>Avaliação dos Pés:</strong> {{ cidadao.data_avaliacao_pes|date:"d/m/Y"|default:"-" }}</p>
+                                <p class="mb-1 small"><strong>Avaliação dos Pés:</strong> {{ cidadao.data_avaliacao_pes|date:"d/m/Y"|default:"-" }}</p>
+                                <p class="mb-1 small"><strong>Pressão Arterial:</strong> {{ cidadao.valor_pa_1|default:"-" }} ({{ cidadao.data_pa_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-1 small"><strong>Peso/Altura:</strong> {{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} ({{ cidadao.data_peso_altura_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-0 small"><strong>Últimas Visitas:</strong> {{ cidadao.data_visita_1|date:"d/m/Y"|default:"-" }} e {{ cidadao.data_visita_2|date:"d/m/Y"|default:"-" }}</p>
                             </div>
                             {% endif %}
 
                             {% if 'Hipertensão' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             <div class="disease-block bg-white shadow-sm border-0 mb-3">
                                 <h6 class="fw-bold" style="color: #dc2626;">Hipertensão</h6>
-                                <p class="mb-0 small"><strong>Última PA:</strong> {{ cidadao.valor_pa_1|default:"-" }} em {{ cidadao.data_pa_1|date:"d/m/Y"|default:"-" }}</p>
+                                <p class="mb-1 small"><strong>Última PA:</strong> {{ cidadao.valor_pa_1|default:"-" }} ({{ cidadao.data_pa_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-1 small"><strong>Peso/Altura:</strong> {{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} ({{ cidadao.data_peso_altura_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-0 small"><strong>Últimas Visitas:</strong> {{ cidadao.data_visita_1|date:"d/m/Y"|default:"-" }} e {{ cidadao.data_visita_2|date:"d/m/Y"|default:"-" }}</p>
                             </div>
                             {% endif %}
 
@@ -273,15 +326,20 @@
                             <div class="disease-block bg-white shadow-sm border-0 mb-3">
                                 <h6 class="fw-bold" style="color: #9333ea;">Gestante</h6>
                                 <p class="mb-1 small"><strong>DUM/DPP:</strong> {{ cidadao.dum|date:"d/m/Y"|default:"-" }} / {{ cidadao.dpp|date:"d/m/Y"|default:"-" }}</p>
-                                <p class="mb-1 small"><strong>Consultas Pré-Natal:</strong> {{ cidadao.qtde_consultas_pre_natal }} realizadas</p>
+                                <p class="mb-1 small"><strong>Pré-Natal:</strong> {{ cidadao.qtde_consultas_pre_natal }} consultas</p>
+                                <p class="mb-1 small"><strong>Visitas (Gest/Puerp):</strong> {{ cidadao.qtd_visitas_gestante|default:"0" }}</p>
+                                <p class="mb-1 small"><strong>Pressão Arterial:</strong> {{ cidadao.valor_pa_1|default:"-" }} ({{ cidadao.data_pa_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-1 small"><strong>Peso/Altura:</strong> {{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} ({{ cidadao.data_peso_altura_1|date:"d/m/Y"|default:"-" }})</p>
                                 <p class="mb-1 small"><strong>Vacina dTpa:</strong> {{ cidadao.data_vacina_dtpa|date:"d/m/Y"|default:"Pendente" }}</p>
-                                <p class="mb-0 small"><strong>Testes (1º / 3º Trim):</strong> {{ cidadao.data_testes_1_semestre|date:"d/m/Y"|default:"-" }} / {{ cidadao.data_testes_3_semestre|date:"d/m/Y"|default:"-" }}</p>
+                                <p class="mb-0 small"><strong>Testes (1º/3º):</strong> {{ cidadao.data_testes_1_semestre|date:"d/m/Y"|default:"-" }} / {{ cidadao.data_testes_3_semestre|date:"d/m/Y"|default:"-" }}</p>
                             </div>
                             {% endif %}
 
                             {% if 'Idoso' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             <div class="disease-block bg-white shadow-sm border-0 mb-3">
                                 <h6 class="fw-bold" style="color: #0d9488;">Idoso</h6>
+                                <p class="mb-1 small"><strong>Pressão Arterial:</strong> {{ cidadao.valor_pa_1|default:"-" }} ({{ cidadao.data_pa_1|date:"d/m/Y"|default:"-" }})</p>
+                                <p class="mb-1 small"><strong>Peso/Altura:</strong> {{ cidadao.valor_peso_1|default:"-" }} / {{ cidadao.valor_altura_1|default:"-" }} ({{ cidadao.data_peso_altura_1|date:"d/m/Y"|default:"-" }})</p>
                                 <p class="mb-0 small"><strong>Vacina Influenza:</strong> {{ cidadao.data_vacina_influenza|date:"d/m/Y"|default:"Pendente" }}</p>
                             </div>
                             {% endif %}
@@ -289,7 +347,7 @@
                             {% if 'Criança' in cidadao.grupos_de_risco.all|stringformat:'s' %}
                             <div class="disease-block bg-white shadow-sm border-0 mb-3">
                                 <h6 class="fw-bold" style="color: #ca8a04;">Criança</h6>
-                                <p class="mb-1 small"><strong>Consultas de Puericultura:</strong> {{ cidadao.qtd_consultas_crianca }} realizadas</p>
+                                <p class="mb-1 small"><strong>Puericultura:</strong> {{ cidadao.qtd_consultas_crianca }} consultas</p>
                                 <p class="mb-1 small text-muted">Pentavalente: {{ cidadao.info_vacina_pentavalente|default:"-" }}</p>
                                 <p class="mb-1 small text-muted">Tríplice Viral: {{ cidadao.info_vacina_triplice_viral|default:"-" }}</p>
                                 <p class="mb-1 small text-muted">Poliomielite: {{ cidadao.info_vacina_polio|default:"-" }}</p>
@@ -313,6 +371,7 @@
                     </div>
                 </div>
             </div>
+
             {% empty %}
             <div class="col-12 text-center py-5">
                 <i class="bi bi-folder-x text-muted" style="font-size: 3rem;"></i>
