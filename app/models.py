@@ -139,9 +139,11 @@ class Cidadao(models.Model):
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
         if "Idoso" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
-        # NOVA INTEGRAÇÃO:
         if "Criança" in grupos_do_cidadao:
             indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
+        # NOVA INTEGRAÇÃO:
+        if "Mulheres" in grupos_do_cidadao:
+            indicadores.extend([self.status_citopatologico, self.status_mamografia_farol])
 
         if not indicadores:
             return "secondary"
@@ -159,18 +161,17 @@ class Cidadao(models.Model):
         
         if "Diabetes" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_diabetico, self.status_hemoglobina])
-        
         if "Hipertensão" in grupos_do_cidadao:
             indicadores.append(self.status_consulta_hipertenso)
-        
         if "Gestante" in grupos_do_cidadao:
             indicadores.extend([self.status_pre_natal, self.status_vacina_dtpa, self.status_testes_gestante])
-        
         if "Idoso" in grupos_do_cidadao:
             indicadores.extend([self.status_consulta_idoso, self.status_vacina_influenza])
-            
         if "Criança" in grupos_do_cidadao:
             indicadores.extend([self.status_consultas_crianca, self.status_vacinas_crianca])
+        # NOVA INTEGRAÇÃO:
+        if "Mulheres" in grupos_do_cidadao:
+            indicadores.extend([self.status_citopatologico, self.status_mamografia_farol])
 
         if any("🔴" in status for status in indicadores):
             return 1
@@ -256,3 +257,33 @@ class Cidadao(models.Model):
         if any(not v or 'atr' in v or 'pen' in v or 'nã' in v or 'vazio' in v for v in vacinas):
             return "🔴 Vermelho (Atraso/Pendente)"
         return "🟢 Verde (Em dia)"
+    
+    @property
+    def status_citopatologico(self):
+        if not self.data_exame_citopatologico:
+            return "🔴 Vermelho (Sem exame)"
+        
+        dias_passados = (date.today() - self.data_exame_citopatologico).days
+        
+        if dias_passados <= 1095:
+            return "🟢 Verde"
+        else:
+            return "🔴 Vermelho (Atrasado)"
+
+    @property
+    def status_mamografia_farol(self):
+        if not self.data_mamografia:
+            return "🔴 Vermelho (Sem exame)"
+        
+        dias_passados = (date.today() - self.data_mamografia).days
+        
+        if dias_passados <= 730:
+            return "🟢 Verde"
+        else:
+            return "🔴 Vermelho (Atrasado)"
+
+    @property
+    def status_hpv_farol(self):
+        if self.data_vacina_hpv:
+            return "🟢 Verde"
+        return "🟡 Amarelo (Sem registro)"
