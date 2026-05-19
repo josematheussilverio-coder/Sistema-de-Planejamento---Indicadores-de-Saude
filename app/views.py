@@ -58,7 +58,10 @@ def dashboard(request):
 
     if termo_busca:
         cidadaos = cidadaos.filter(
-            Q(nome__icontains=termo_busca) | Q(cns__icontains=termo_busca)
+            Q(nome__icontains=termo_busca) | 
+            Q(cns__icontains=termo_busca) |
+            Q(rua__icontains=termo_busca) |   
+            Q(bairro__icontains=termo_busca)   
         )
 
     if grupo_filtro:
