@@ -5,13 +5,17 @@ from django.core.management import call_command
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
 from .models import Cidadao, GrupoRisco
+import os
 
-@login_required 
+@login_required
 def dashboard(request):
     termo_busca = request.GET.get('q', '')
 
 @login_required
 def importar_planilhas(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
     if request.method == 'POST' and request.FILES.get('arquivo_csv'):
         arquivo = request.FILES['arquivo_csv']
         tipo_importacao = request.POST.get('tipo_importacao')
@@ -22,7 +26,7 @@ def importar_planilhas(request):
 
         try:
             comandos = {
-                'diabeticos': 'importar_csv', 
+                'diabeticos': 'importar_csv',
                 'hipertensos': 'importar_hipertensos',
                 'gestantes': 'importar_gestantes',
                 'idosos': 'importar_idosos',
@@ -31,7 +35,7 @@ def importar_planilhas(request):
             }
 
             comando_escolhido = comandos.get(tipo_importacao)
-            
+
             if comando_escolhido:
                 call_command(comando_escolhido, caminho_arquivo)
                 messages.success(request, 'Planilha processada com sucesso! Os dados foram atualizados.')
@@ -40,7 +44,7 @@ def importar_planilhas(request):
 
         except Exception as e:
             messages.error(request, f'Erro ao processar o arquivo. Verifique se escolheu o grupo certo. Detalhe: {e}')
-        
+
         finally:
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
@@ -58,10 +62,10 @@ def dashboard(request):
 
     if termo_busca:
         cidadaos = cidadaos.filter(
-            Q(nome__icontains=termo_busca) | 
+            Q(nome__icontains=termo_busca) |
             Q(cns__icontains=termo_busca) |
-            Q(rua__icontains=termo_busca) |   
-            Q(bairro__icontains=termo_busca)   
+            Q(rua__icontains=termo_busca) |
+            Q(bairro__icontains=termo_busca)
         )
 
     if grupo_filtro:
@@ -123,5 +127,5 @@ def dashboard(request):
         'total_atencao': total_atencao,
         'total_em_dia': total_em_dia,
     }
-    
+
     return render(request, 'dashboard.html', contexto)
