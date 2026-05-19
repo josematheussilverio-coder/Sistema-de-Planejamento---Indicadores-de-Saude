@@ -64,7 +64,6 @@ def dashboard(request):
     if grupo_filtro:
         cidadaos = cidadaos.filter(grupos_de_risco__nome=grupo_filtro)
 
-    # --- NOVO MOTOR CAMALEÃO: A cor adapta ao filtro escolhido ---
     for cidadao in cidadaos:
         indicadores = []
         grupos_do_cidadao = [g.nome for g in cidadao.grupos_de_risco.all()]
@@ -82,7 +81,6 @@ def dashboard(request):
         elif grupo_filtro == 'Mulheres':
             indicadores.extend([cidadao.status_citopatologico, cidadao.status_mamografia_farol])
         else:
-            # Se não tem filtro (Visão Geral), julga todas as condições que o paciente tem
             if "Diabetes" in grupos_do_cidadao: indicadores.append(cidadao.status_consulta_diabetico)
             if "Hipertensão" in grupos_do_cidadao: indicadores.append(cidadao.status_consulta_hipertenso)
             if "Idoso" in grupos_do_cidadao: indicadores.append(cidadao.status_consulta_idoso)
@@ -90,7 +88,6 @@ def dashboard(request):
             if "Criança" in grupos_do_cidadao: indicadores.extend([cidadao.status_consultas_crianca, cidadao.status_vacinas_crianca])
             if "Mulheres" in grupos_do_cidadao: indicadores.extend([cidadao.status_citopatologico, cidadao.status_mamografia_farol])
 
-        # Aplica as cores dinamicamente no objeto apenas para esta tela
         if not indicadores:
             cidadao.cor_dinamica = "secondary"
             cidadao.peso_dinamico = 4
@@ -104,10 +101,8 @@ def dashboard(request):
             cidadao.cor_dinamica = "success"
             cidadao.peso_dinamico = 3
 
-    # Ordena usando o peso dinâmico que acabamos de calcular
     cidadaos_ordenados = sorted(cidadaos, key=lambda x: x.peso_dinamico)
 
-    # Recalcula os painéis (KPIs) com a visão do filtro
     total_pacientes = len(cidadaos_ordenados)
     total_criticos = sum(1 for c in cidadaos_ordenados if c.peso_dinamico == 1)
     total_atencao = sum(1 for c in cidadaos_ordenados if c.peso_dinamico == 2)

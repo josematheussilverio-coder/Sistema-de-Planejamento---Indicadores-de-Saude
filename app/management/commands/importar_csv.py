@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime
 from django.core.management.base import BaseCommand
-from app.models import Cidadao, GrupoRisco 
+from app.models import Cidadao, GrupoRisco
 
 class Command(BaseCommand):
     help = 'Importa dados dos cidadãos a partir do CSV do e-SUS'
@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         caminho_arquivo = kwargs['csv_file']
-        
+
         def formata_data(data_str):
             if not data_str or data_str == '-':
                 return None
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 break
 
         leitor_csv = csv.DictReader(linhas[inicio_tabela:], delimiter=';')
-        
+
         grupo_diabetes, _ = GrupoRisco.objects.get_or_create(nome="Diabetes")
         cadastrados = 0
         atualizados = 0
@@ -41,12 +41,28 @@ class Command(BaseCommand):
             nome = linha.get('Nome', '').strip()
             data_nasc = formata_data(linha.get('Data de nascimento'))
             cns = linha.get('CNS', '').strip()
-            
-            if not cns or cns == '-': 
+
+            if not cns or cns == '-':
                 cns = None
-            
+
             if not nome or not data_nasc:
                 continue
+
+
+            texto_visitas = linha.get('Últimas visitas domiciliares', '').strip()
+
+            data_v1 = None
+            data_v2 = None
+
+            if texto_visitas and texto_visitas != '-':
+                partes = texto_visitas.split(' e ')
+
+                if len(partes) > 0:
+                    data_v1 = formata_data(partes[0].strip())
+
+                if len(partes) > 1:
+                    data_v2 = formata_data(partes[1].strip())
+
 
             try:
                 cidadao, criado = Cidadao.objects.update_or_create(
@@ -57,32 +73,35 @@ class Command(BaseCommand):
                         'rua': linha.get('Rua', ''),
                         'numero': linha.get('Número', ''),
                         'bairro': linha.get('Bairro', ''),
-                        'microarea': str(linha.get('Microárea', '')).zfill(2), # Transforma "4" em "04"
-                        
+                        'microarea': str(linha.get('Microárea', '')).zfill(2), 
+
                         'valor_pa_1': linha.get('Última medição de pressão arterial', ''),
                         'data_pa_1': formata_data(linha.get('Data da última medição de pressão arterial')),
-                        
+
                         'valor_peso_1': linha.get('Última medição de peso', ''),
                         'valor_altura_1': linha.get('Última medição de altura', ''),
                         'data_peso_altura_1': formata_data(linha.get('Data da ultima medição de peso e altura')),
-                        
+
                         'valor_hemoglobina_glicada': linha.get('Hemoglobina glicada', ''),
                         'data_hemoglobina_glicada': formata_data(linha.get('Data da última avaliação de hemoglobina glicada')),
-                        
+
                         'data_avaliacao_pes': formata_data(linha.get('Data da avaliação dos pés')),
                         'data_consulta_1': formata_data(linha.get('Data da última consulta')),
+
+                        'data_visita_1': data_v1,
+                        'data_visita_2': data_v2,
                     }
                 )
-                
+
                 cidadao.grupos_de_risco.add(grupo_diabetes)
 
                 if criado:
                     cadastrados += 1
                 else:
                     atualizados += 1
-                    
+
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f'Aviso: Pulando {nome} devido a conflito de dados (Ex: CNS já cadastrado).'))
                 continue
-                
+
         self.stdout.write(self.style.SUCCESS(f'Sucesso! {cadastrados} novos cadastrados e {atualizados} atualizados.'))

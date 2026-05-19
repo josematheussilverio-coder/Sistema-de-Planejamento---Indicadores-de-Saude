@@ -48,6 +48,21 @@ class Command(BaseCommand):
             
             if not nome or not data_nasc:
                 continue
+            
+            texto_visitas = linha.get('Últimas visitas domiciliares', '').strip()
+
+            data_v1 = None
+            data_v2 = None
+
+            if texto_visitas and texto_visitas != '-':
+                partes = texto_visitas.split(' e ')
+
+                if len(partes) > 0:
+                    data_v1 = formata_data(partes[0].strip())
+
+                if len(partes) > 1:
+                    data_v2 = formata_data(partes[1].strip())
+
 
             try:
                 cidadao, criado = Cidadao.objects.update_or_create(
@@ -72,6 +87,9 @@ class Command(BaseCommand):
                         
                         'data_avaliacao_pes': formata_data(linha.get('Data da avaliação dos pés')),
                         'data_consulta_1': formata_data(linha.get('Data da última consulta')),
+
+                        'data_visita_1': data_v1,
+                        'data_visita_2': data_v2,
                     }
                 )
                 

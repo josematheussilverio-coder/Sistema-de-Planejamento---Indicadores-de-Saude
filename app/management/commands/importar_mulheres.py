@@ -31,10 +31,8 @@ class Command(BaseCommand):
                 inicio_tabela = i
                 break
 
-        # Processamento seguro baseado em índices reais para evitar sobrescrita de colunas com mesmo nome
         cabecalho = [col.strip() for col in linhas[inicio_tabela].split(';')]
         
-        # Mapeamento dinâmico de índices das colunas
         idx_nome = cabecalho.index('Nome')
         idx_nasc = cabecalho.index('Data de nascimento')
         idx_cns = cabecalho.index('CNS')
@@ -43,15 +41,12 @@ class Command(BaseCommand):
         idx_bairro = cabecalho.index('Bairro')
         idx_micro = cabecalho.index('Microárea')
         
-        # Mapeamento das colunas complexas da Mamografia
         idx_mamo_sol = cabecalho.index('Exame de rastreamento de câncer de mama data Última solicitação')
         idx_mamo_rea = cabecalho.index('Exame de rastreamento de câncer de mama data Última realização')
         idx_mamo_ava = cabecalho.index('Exame de rastreamento de câncer de mama data Última avaliação')
         
-        # Mapeamento do Citopatológico (Localizando duplicatas pela ordem de ocorrência)
-        indices_cito_ava = [i for i, x in enumerate(cabecalho) if x == 'Exame de rastreamento de câncer de colo de útero última avaliação']
-        idx_cito_ava_data = indices_cito_ava[0]
-        idx_cito_ava_nome = indices_cito_ava[1] if len(indices_cito_ava) > 1 else idx_cito_ava_data
+        idx_cito_ava_nome = cabecalho.index('Exame de rastreamento de câncer de colo de útero última avaliação')
+        idx_cito_ava_data = cabecalho.index('Exame de rastreamento de câncer de colo de útero data última avaliação')
         
         idx_hpv = cabecalho.index('HPV')
 
@@ -72,7 +67,6 @@ class Command(BaseCommand):
             if not nome or not data_nasc:
                 continue
 
-            # Define a melhor data de Mamografia disponível (Prioridade: Avaliação > Realização > Solicitação)
             data_mamo = formata_data(linha[idx_mamo_ava])
             status_mamo = "Avaliada"
             if not data_mamo:
@@ -83,6 +77,11 @@ class Command(BaseCommand):
                 status_mamo = "Solicitada"
             if not data_mamo:
                 status_mamo = "Pendente"
+
+            status_cito_real = linha[idx_cito_ava_nome].strip()
+            if status_cito_real == '-': status_cito_real = ""
+            
+            data_cito_real = formata_data(linha[idx_cito_ava_data])
 
             try:
                 cidadao, criado = Cidadao.objects.update_or_create(
@@ -95,11 +94,9 @@ class Command(BaseCommand):
                         'bairro': linha[idx_bairro],
                         'microarea': str(linha[idx_micro]).zfill(2),
                         
-                        # Dados do preventivo extraídos via índice sem colisão
-                        'data_exame_citopatologico': formata_data(linha[idx_cito_ava_data]),
-                        'status_exame_citopatologico': linha[idx_cito_ava_nome].strip() if idx_cito_ava_nome != idx_cito_ava_data else "Avaliado",
+                        'data_exame_citopatologico': data_cito_real,
+                        'status_exame_citopatologico': status_cito_real,
                         
-                        # Dados consolidados da Mamografia
                         'data_mamografia': data_mamo,
                         'status_mamografia': status_mamo,
                         
