@@ -8,6 +8,19 @@ from .models import Cidadao, GrupoRisco
 import os
 
 @login_required
+def apagar_banco(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Acesso negado. Apenas administradores podem realizar esta ação.")
+        return redirect('dashboard')
+    
+    Cidadao.objects.all().delete()
+    
+    messages.success(request, "Banco de dados zerado com sucesso! O sistema está limpo para novos uploads.")
+    return redirect('dashboard')
+
+
+
+@login_required
 def dashboard(request):
     termo_busca = request.GET.get('q', '')
 

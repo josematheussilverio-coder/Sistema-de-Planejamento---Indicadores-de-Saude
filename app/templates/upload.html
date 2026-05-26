@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,29 +9,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f5f7fb; color: #334155; }
-        .upload-card { border-radius: 1rem; border: none; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); background-color: #ffffff; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+            color: #334155;
+        }
+
+        .upload-card {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
     </style>
 </head>
+
 <body>
-    
+
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
-                
+
                 <div class="mb-4 d-flex justify-content-between align-items-center">
-                    <h3 class="fw-bold mb-0 text-dark"><i class="bi bi-cloud-arrow-up text-primary me-2"></i> Importar Dados do e-SUS</h3>
-                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Voltar ao Painel</a>
+                    <h3 class="fw-bold mb-0 text-dark"><i class="bi bi-cloud-arrow-up text-primary me-2"></i> Importar
+                        Dados do e-SUS</h3>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm"><i
+                            class="bi bi-arrow-left"></i> Voltar ao Painel</a>
                 </div>
 
                 <div class="card upload-card p-4">
-                    <div class="alert alert-info small border-0 bg-primary bg-opacity-10 text-primary-emphasis rounded-3 mb-4">
-                        <i class="bi bi-info-circle-fill me-2"></i> Exporte o relatório em formato <strong>CSV</strong> pelo e-SUS PEC e faça o upload abaixo. O sistema fará a atualização inteligente sem duplicar pacientes.
+                    <div
+                        class="alert alert-info small border-0 bg-primary bg-opacity-10 text-primary-emphasis rounded-3 mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i> Exporte o relatório em formato <strong>CSV</strong>
+                        pelo e-SUS PEC e faça o upload abaixo. O sistema fará a atualização inteligente sem duplicar
+                        pacientes.
                     </div>
 
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
+
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">1. Selecione o Grupo de Risco</label>
                             <select name="tipo_importacao" class="form-select border-light-subtle bg-light" required>
@@ -46,10 +63,24 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">2. Anexe o arquivo CSV</label>
-                            <input type="file" name="arquivo_csv" class="form-control border-light-subtle bg-light" accept=".csv" required>
+                            <input type="file" name="arquivo_csv" class="form-control border-light-subtle bg-light"
+                                accept=".csv" required>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2"><i class="bi bi-gear-fill me-2"></i> Processar Planilha</button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2"><i
+                                class="bi bi-gear-fill me-2"></i> Processar Planilha</button>
+                        <div class="mt-5 border-top pt-4">
+                            <h5 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Zona de
+                                Perigo</h5>
+                            <p class="text-muted small">Esta ação irá apagar permanentemente todos os registros de
+                                pacientes do banco de dados do Farol ACS. Utilize apenas para testes ou para limpar a
+                                base antes de uma importação massiva.</p>
+
+                            <a href="{% url 'apagar_banco' %}" class="btn btn-outline-danger"
+                                onclick="return confirm('ATENÇÃO: Tem certeza que deseja APAGAR TODOS os cidadãos do sistema? Esta ação não pode ser desfeita.');">
+                                <i class="bi bi-trash-fill"></i> Apagar Todos os Dados
+                            </a>
+                        </div>
                     </form>
                 </div>
 
@@ -58,4 +89,5 @@
     </div>
 
 </body>
+
 </html>
